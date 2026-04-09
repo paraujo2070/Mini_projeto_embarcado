@@ -1,0 +1,34 @@
+aidl_interface {
+    name: "pressure_aidl_froyo",
+    srcs: ["aidl/com/android/pressure_froyo/IPressure.aidl"],
+    local_include_dir: "aidl",
+    owner: "froyo",
+    unstable: true,
+    backend: {
+        cpp: { enabled: true },
+        ndk: { enabled: true },
+        java: { enabled: true },
+    },
+}
+
+cc_library_shared {
+    name: "libpressure_hal_froyo",
+    srcs: ["src/PressureHAL.cpp"],
+    vendor: true,
+    cflags: ["-Wall", "-Werror"],
+    export_include_dirs: ["src"],
+}
+
+cc_binary {
+    name: "pressure_daemon_froyo",
+    srcs: ["src/pressure_daemon_froyo.cpp"],
+    shared_libs: [
+        "libpressure_hal_froyo",
+        "libbase",
+        "liblog",
+        "libbinder_ndk",
+        "pressure_aidl_froyo-ndk",
+    ],
+    init_rc: ["pressure_froyo.rc"],
+    cflags: ["-Wall", "-Werror"],
+}

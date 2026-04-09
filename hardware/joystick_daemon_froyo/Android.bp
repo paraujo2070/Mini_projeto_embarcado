@@ -1,0 +1,34 @@
+aidl_interface {
+    name: "joystick_aidl_froyo",
+    srcs: ["aidl/com/android/joystick_froyo/IJoystick.aidl"],
+    local_include_dir: "aidl",
+    owner: "froyo",
+    unstable: true,
+    backend: {
+        cpp: { enabled: true },
+        ndk: { enabled: true },
+        java: { enabled: true },
+    },
+}
+
+cc_library_shared {
+    name: "libjoystick_hal_froyo",
+    srcs: ["src/JoystickHAL.cpp"],
+    vendor: true,
+    cflags: ["-Wall", "-Werror"],
+    export_include_dirs: ["src"],
+}
+
+cc_binary {
+    name: "joystick_daemon_froyo",
+    srcs: ["src/joystick_daemon_froyo.cpp"],
+    shared_libs: [
+        "libjoystick_hal_froyo",
+        "libbase",
+        "liblog",
+        "libbinder_ndk",
+        "joystick_aidl_froyo-ndk",
+    ],
+    init_rc: ["joystick_froyo.rc"],
+    cflags: ["-Wall", "-Werror"],
+}

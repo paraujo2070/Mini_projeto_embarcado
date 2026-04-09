@@ -1,0 +1,6 @@
+service pressure_daemon_froyo /system/bin/pressure_daemon_froyo
+    class hal
+    user root
+    group root system
+    seclabel u:r:su:s0
+    restart_period 5

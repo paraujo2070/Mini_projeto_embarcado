@@ -1,0 +1,34 @@
+aidl_interface {
+    name: "temp_aidl_froyo",
+    srcs: ["aidl/com/android/temp_froyo/ITemp.aidl"],
+    local_include_dir: "aidl",
+    owner: "froyo",
+    unstable: true,
+    backend: {
+        cpp: { enabled: true },
+        ndk: { enabled: true },
+        java: { enabled: true },
+    },
+}
+
+cc_library_shared {
+    name: "libtemp_hal_froyo",
+    srcs: ["src/TempHAL.cpp"],
+    vendor: true,
+    cflags: ["-Wall", "-Werror"],
+    export_include_dirs: ["src"],
+}
+
+cc_binary {
+    name: "temp_daemon_froyo",
+    srcs: ["src/temp_daemon_froyo.cpp"],
+    shared_libs: [
+        "libtemp_hal_froyo",
+        "libbase",
+        "liblog",
+        "libbinder_ndk",
+        "temp_aidl_froyo-ndk",
+    ],
+    init_rc: ["temp_froyo.rc"],
+    cflags: ["-Wall", "-Werror"],
+}
