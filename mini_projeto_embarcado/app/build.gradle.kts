@@ -33,6 +33,10 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        compose = false
+        aidl = true
+    }
 }
 
 dependencies {
