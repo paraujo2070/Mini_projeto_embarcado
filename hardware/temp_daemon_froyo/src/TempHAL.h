@@ -3,6 +3,11 @@
 #include <mutex>
 
 #define ADDR_TEMP 0x5F
+#define REG_AV_CONF   0x10
+#define REG_CTRL_REG1 0x20
+#define REG_STATUS    0x27
+#define REG_HUM_OUT_L 0x28
+#define REG_TMP_OUT_L 0x2A
 
 class TempHAL {
 public:
@@ -12,6 +17,7 @@ public:
     float readTemperature();
     float readHumidity();
     float readAmbientTemperature(float factor);
+    bool readClimate(float &temp, float &hum);
 
 private:
     int i2c_fd;

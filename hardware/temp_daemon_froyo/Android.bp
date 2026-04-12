@@ -1,6 +1,9 @@
 aidl_interface {
     name: "temp_aidl_froyo",
-    srcs: ["aidl/com/android/temp_froyo/ITemp.aidl"],
+    srcs: [
+        "aidl/com/android/temp_froyo/ITemp.aidl",
+        "aidl/com/android/temp_froyo/ITempListener.aidl",
+    ],
     local_include_dir: "aidl",
     owner: "froyo",
     unstable: true,

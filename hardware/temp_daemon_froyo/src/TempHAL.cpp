@@ -44,9 +44,35 @@ bool TempHAL::init() {
     system("echo '1-005f' > /sys/bus/i2c/drivers/hts221/unbind 2> /dev/null");
     if (!openI2C()) return false;
     
+    // 0x10 = AV_CONF: AVGT=32, AVGH=32 (Média interna para reduzir ruído)
+    writeByte(ADDR_TEMP, REG_AV_CONF, 0x1B);
+    
     // Config: Power On, BDU (Block Data Update) para evitar leitura parcial, 1Hz
-    writeByte(ADDR_TEMP, 0x20, 0x81);
+    writeByte(ADDR_TEMP, REG_CTRL_REG1, 0x81);
     return loadCalibration();
+}
+
+bool TempHAL::readClimate(float &temp, float &hum) {
+    uint8_t status = 0;
+    if (!readBlock(ADDR_TEMP, REG_STATUS, &status, 1)) return false;
+    
+    // Verifica se os dados de Temp e Hum estão prontos
+    if ((status & 0x03) != 0x03) return false;
+
+    uint8_t buf[4];
+    // Leitura em bloco: 0x28 (Hum L), 0x29 (Hum H), 0x2A (Temp L), 0x2B (Temp H)
+    if (!readBlock(ADDR_TEMP, REG_HUM_OUT_L, buf, 4)) return false;
+    
+    int16_t H_out = (int16_t)(buf[0] | (buf[1] << 8));
+    int16_t T_out = (int16_t)(buf[2] | (buf[3] << 8));
+    
+    // Cálculos de Calibração
+    float h_rh = (H1_rh - H0_rh) * (float)(H_out - H0_out) / (float)(H1_out - H0_out) + H0_rh;
+    hum = (h_rh > 100.0f) ? 100.0f : (h_rh < 0.0f ? 0.0f : h_rh);
+    
+    temp = (T1_degC - T0_degC) * (float)(T_out - T0_out) / (float)(T1_out - T0_out) + T0_degC;
+    
+    return true;
 }
 
 float TempHAL::readTemperature() {
